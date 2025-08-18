@@ -1,12 +1,10 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 const j2s = require('joi-to-swagger');
 
-// import Joi schemas (tetap dari folder schemas/validators kamu)
 const { createUserSchema, updateUserSchema } = require('../schemas/user.schema');
 const { createHealthSchema } = require('../schemas/health.schema');
 const { updateProfile } = require('../schemas/profile.schema');
 
-// convert Joi -> OpenAPI (untuk requestBody)
 const { swagger: UserCreate } = j2s(createUserSchema);
 const { swagger: UserUpdate } = j2s(updateUserSchema);
 const { swagger: HealthCreate } = j2s(createHealthSchema);

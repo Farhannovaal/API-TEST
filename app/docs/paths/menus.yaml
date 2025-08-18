@@ -1,0 +1,57 @@
+paths:
+  /tenants:
+    get:
+      tags: [Tenant]
+      summary: List tenants
+      responses:
+        '200': { description: OK }
+
+    post:
+      tags: [Tenant]
+      summary: Create tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantCreate'
+      responses:
+        '201': { description: Created }
+        '409': { description: Duplicate code }
+        '422': { description: Validation error }
+
+  /tenants/{id}:
+    get:
+      tags: [Tenant]
+      summary: Get tenant
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+
+    put:
+      tags: [Tenant]
+      summary: Update tenant
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUpdate'
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+        '409': { description: Duplicate code }
+        '422': { description: Validation error }
+
+    delete:
+      tags: [Tenant]
+      summary: Delete tenant
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '200': { description: Deleted }
+        '404': { description: Not found }

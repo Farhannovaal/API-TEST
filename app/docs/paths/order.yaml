@@ -1,0 +1,47 @@
+paths:
+  /orders:
+    get:
+      tags: [Order]
+      summary: List orders
+      parameters:
+        - in: query
+          name: tenant_id
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: user_id
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: status
+          schema: { type: string, enum: [pending, paid, cancelled, refunded] }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: page_size
+          schema: { type: integer, minimum: 1, maximum: 200 }
+      responses: { "200": { description: OK } }
+    post:
+      tags: [Order]
+      summary: Create order (deduct stocks)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/OrderCreate' } } }
+      responses:
+        "201": { description: Created }
+        "400": { description: Validation or stock error }
+        "404": { description: Tenant/Menu not found }
+        "422": { description: Validation error }
+
+  /orders/{id}:
+    get:
+      tags: [Order]
+      summary: Get order with items
+      parameters: [ { $ref: '#/components/parameters/PathId' } ]
+      responses: { "200": { description: OK }, "404": { description: Not found } }
+
+  /orders/{id}/cancel:
+    patch:
+      tags: [Order]
+      summary: Cancel order (restore stock if pending)
+      parameters: [ { $ref: '#/components/parameters/PathId' } ]
+      responses: { "200": { description: OK }, "400": { description: Not cancellable }, "404": { description: Not found } }
