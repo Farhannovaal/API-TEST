@@ -45,7 +45,6 @@ async function remove(id) {
     return before;
 }
 
-/** Ambil banyak menu per id untuk validasi order */
 async function findByIds(ids) {
     if (!ids.length) return [];
     const [rows] = await pool.query(
@@ -55,7 +54,6 @@ async function findByIds(ids) {
     return rows;
 }
 
-/** Kurangi stok secara aman. return affectedRows */
 async function deductStock(conn, { menuId, tenantId, qty }) {
     const [r] = await conn.execute(
         `UPDATE menus SET stock_qty = stock_qty - :qty
@@ -65,7 +63,6 @@ async function deductStock(conn, { menuId, tenantId, qty }) {
     return r.affectedRows;
 }
 
-/** Kembalikan stok (untuk cancel) */
 async function restoreStock(conn, { menuId, qty }) {
     await conn.execute(
         `UPDATE menus SET stock_qty = stock_qty + :qty WHERE id=:menuId`,

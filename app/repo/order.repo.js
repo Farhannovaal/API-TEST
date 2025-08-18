@@ -43,8 +43,8 @@ async function listOrders({ tenant_id, user_id, status, page, page_size }) {
   const where = [];
   const params = [];
   if (tenant_id) { where.push('o.tenant_id=?'); params.push(tenant_id); }
-  if (user_id)   { where.push('o.user_id=?');   params.push(user_id); }
-  if (status)    { where.push('o.status=?');    params.push(status); }
+  if (user_id) { where.push('o.user_id=?'); params.push(user_id); }
+  if (status) { where.push('o.status=?'); params.push(status); }
   const wsql = where.length ? ('WHERE ' + where.join(' AND ')) : '';
   const limit = page_size;
   const offset = (page - 1) * page_size;
@@ -63,7 +63,6 @@ async function listOrders({ tenant_id, user_id, status, page, page_size }) {
 }
 
 async function cancelOrderTx(conn, orderId) {
-  // set cancelled jika masih pending
   const [r] = await conn.execute(
     `UPDATE orders SET status='cancelled', updated_at=NOW()
       WHERE id=:id AND status='pending'`, { id: orderId }

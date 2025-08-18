@@ -19,7 +19,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     explorer: true,
     swaggerOptions: {
         tagsSorter: (a, b) => {
-            const order = ['User', 'Profile', 'Health', 'Tenant', 'Menu', 'Order'];
+            const order = ['User', 'Profile', 'Health', 'Tenant', 'Menus', 'Order'];
             const ia = order.indexOf(a);
             const ib = order.indexOf(b);
             return (ia === -1 ? 9999 : ia) - (ib === -1 ? 9999 : ib);

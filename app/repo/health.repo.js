@@ -1,4 +1,3 @@
-// app/repositories/health.repo.js
 const pool = require('../db/pool');
 
 async function ensureUserExists(userId) {
