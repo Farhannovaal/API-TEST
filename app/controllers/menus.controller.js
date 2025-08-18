@@ -1,4 +1,4 @@
-const svc = require('../services/menu.service');
+const svc = require('../services/menus.service');
 
 async function listMenusByTenant(req, res, next) {
     try {

@@ -1,11 +1,15 @@
 const router = require('express').Router();
-const validate = require('../middlewares/validate');
-const ctl = require('../controllers/order.controller');
-const { createOrderSchema, orderIdParamSchema, listOrdersQuerySchema } = require('../schemas/order.schema');
+const usersRoutes = require('./users.routes');
+const healthRoutes = require('./health.routes')
+const profileRoutes = require('./profile.routes')
+const tenantsRoutes = require('./tenants.route')
+const menusRoutes = require('./menus.routes')
+const orderRoutes = require('./orders.routes')
 
-router.get('/', validate(listOrdersQuerySchema, 'query'), ctl.listOrders);
-router.post('/', validate(createOrderSchema), ctl.createOrder);
-router.get('/:id', validate(orderIdParamSchema, 'params'), ctl.getOrder);
-router.patch('/:id/cancel', validate(orderIdParamSchema, 'params'), ctl.cancelOrder);
-
+router.use('/health', healthRoutes);
+router.use('/users', usersRoutes);
+router.use('/profile', profileRoutes);
+router.use('/tenants', tenantsRoutes);
+router.use('/menus', menusRoutes);
+router.use('/order', orderRoutes);
 module.exports = router;

@@ -4,11 +4,18 @@ const j2s = require('joi-to-swagger');
 const { createUserSchema, updateUserSchema } = require('../schemas/user.schema');
 const { createHealthSchema } = require('../schemas/health.schema');
 const { updateProfile } = require('../schemas/profile.schema');
+const { createTenantSchema, updateTenantSchema } = require('../schemas/tenant.schema');
+const { createMenuSchema, updateMenuSchema } = require('../schemas/menus.schema');
+const { createOrderSchema, updateOrderSchema } = require('../schemas/order.schema');
 
-const { swagger: UserCreate } = j2s(createUserSchema);
-const { swagger: UserUpdate } = j2s(updateUserSchema);
-const { swagger: HealthCreate } = j2s(createHealthSchema);
-const { swagger: ProfileUpdate } = j2s(updateProfile);
+const toSwagger = (schema) => {
+    try {
+        if (!schema || !schema.isJoi) return undefined;
+        return j2s(schema).swagger;
+    } catch {
+        return undefined;
+    }
+};
 
 const ValidationError = {
     type: 'object',
@@ -32,16 +39,84 @@ const ApiError = {
     properties: { error: { type: 'string', example: 'Message' } }
 };
 
+const User = {
+    type: 'object',
+    properties: {
+        id: { type: 'integer', example: 1 },
+        name: { type: 'string', example: 'Farhan' },
+        email: { type: 'string', example: 'farhan@example.com' },
+        role: { type: 'string', enum: ['admin', 'staff', 'guest'], example: 'admin' },
+        created_at: { type: 'string', format: 'date-time' },
+        updated_at: { type: 'string', format: 'date-time', nullable: true }
+    }
+};
+
+const HealthItem = {
+    type: 'object',
+    properties: {
+        id: { type: 'integer', example: 10 },
+        user_id: { type: 'integer', example: 1 },
+        penyakit: { type: 'string', example: 'Flu' },
+        waktu: { type: 'string', format: 'date-time' },
+        created_at: { type: 'string', format: 'date-time' },
+        updated_at: { type: 'string', format: 'date-time', nullable: true },
+        user_name: { type: 'string', example: 'Farhan' },
+        user_email: { type: 'string', example: 'farhan@example.com' },
+        user_role: { type: 'string', enum: ['admin', 'staff', 'guest'], example: 'admin' }
+    }
+};
+
+const schemas = {
+    User,
+    HealthItem,
+    ApiError,
+    ValidationError,
+
+    UserCreate: toSwagger(createUserSchema),
+    UserUpdate: toSwagger(updateUserSchema),
+    HealthCreate: toSwagger(createHealthSchema),
+    ProfileUpdate: toSwagger(updateProfile),
+
+    TenantCreate: toSwagger(createTenantSchema),
+    TenantUpdate: toSwagger(updateTenantSchema),
+
+    MenuCreate: toSwagger(createMenuSchema),
+    MenuUpdate: toSwagger(updateMenuSchema),
+
+    OrderCreate: toSwagger(createOrderSchema),
+    OrderUpdate: toSwagger(updateOrderSchema),
+};
+
+for (const k of Object.keys(schemas)) {
+    if (schemas[k] === undefined) delete schemas[k];
+}
+
+const ORDERED_TAGS = ['User', 'Profile', 'Health', 'Tenant', 'Menu', 'Order'];
+const PATH_ORDER = [
+    '/users', '/users/{id}',
+    '/profile/{id}',
+    '/health', '/health/{id}', '/health/user/{id}',
+    '/tenants', '/tenants/{id}',
+    '/tenants/{tenantId}/menus', '/menus/{id}',
+    '/orders', '/orders/{id}', '/orders/{id}/cancel',
+];
+
 const options = {
     definition: {
         openapi: '3.0.3',
         info: { title: 'API-TEST PPA SS6', version: '1.0.0' },
         servers: [{ url: 'http://localhost:3000/api' }],
-        tags: [
-            { name: 'User' },
-            { name: 'Profile' },
-            { name: 'Health' },
+
+        tags: ORDERED_TAGS.map(name => ({ name })),
+
+        'x-tagGroups': [
+            { name: 'Core', tags: ['User', 'Profile', 'Health'] },
+            { name: 'Catalog', tags: ['Tenant', 'Menu'] },
+            { name: 'Sales', tags: ['Order'] },
         ],
+
+        'x-pathOrder': PATH_ORDER,
+
         components: {
             parameters: {
                 PathId: {
@@ -50,37 +125,7 @@ const options = {
                     description: 'Resource numeric ID'
                 }
             },
-            schemas: {
-                User: {
-                    type: 'object',
-                    properties: {
-                        id: { type: 'integer', example: 1 },
-                        name: { type: 'string', example: 'Farhan' },
-                        email: { type: 'string', example: 'farhan@example.com' },
-                        role: { type: 'string', enum: ['admin', 'staff', 'guest'], example: 'admin' },
-                        created_at: { type: 'string', format: 'date-time' },
-                        updated_at: { type: 'string', format: 'date-time', nullable: true }
-                    }
-                },
-                HealthItem: {
-                    type: 'object',
-                    properties: {
-                        id: { type: 'integer', example: 10 },
-                        user_id: { type: 'integer', example: 1 },
-                        penyakit: { type: 'string', example: 'Flu' },
-                        waktu: { type: 'string', format: 'date-time' },
-                        created_at: { type: 'string', format: 'date-time' },
-                        updated_at: { type: 'string', format: 'date-time', nullable: true },
-                        user_name: { type: 'string', example: 'Farhan' },
-                        user_email: { type: 'string', example: 'farhan@example.com' },
-                        user_role: { type: 'string', enum: ['admin', 'staff', 'guest'], example: 'admin' }
-                    }
-                },
-
-                UserCreate, UserUpdate, HealthCreate, ProfileUpdate,
-
-                ApiError, ValidationError,
-            }
+            schemas
         }
     },
     apis: ['./app/docs/paths/*.yaml'],
