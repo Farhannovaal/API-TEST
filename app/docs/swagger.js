@@ -101,7 +101,7 @@ for (const k of Object.keys(schemas)) {
     if (schemas[k] === undefined) delete schemas[k];
 }
 
-const ORDERED_TAGS = ['User', 'Profile', 'Health', 'Tenant', 'Menus', 'Order', 'Payments'];
+const ORDERED_TAGS = ['User', 'Profile', 'Health', 'Tenant', 'Menu', 'Order', 'Payments'];
 const PATH_ORDER = [
     '/users', '/users/{id}',
     '/profile/{id}',
@@ -122,7 +122,7 @@ const options = {
 
         'x-tagGroups': [
             { name: 'Core', tags: ['User', 'Profile', 'Health'] },
-            { name: 'Catalog', tags: ['Tenant', 'Menus'] },
+            { name: 'Catalog', tags: ['Tenant', 'Menu'] },
             { name: 'Sales', tags: ['Order'] },
         ],
 

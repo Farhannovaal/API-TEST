@@ -1,29 +1,41 @@
 paths:
-  /tenants:
+  /tenants/{tenantId}/menus:
     get:
-      tags: [Tenant]
-      summary: List tenants
+      tags: [Menu]
+      summary: List menus by tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: integer, minimum: 1 }
       responses:
         '200': { description: OK }
+        '404': { description: Tenant not found }
 
     post:
-      tags: [Tenant]
-      summary: Create tenant
+      tags: [Menu]
+      summary: Create menu in tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: integer, minimum: 1 }
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TenantCreate'
+              $ref: '#/components/schemas/MenuCreate'
       responses:
         '201': { description: Created }
-        '409': { description: Duplicate code }
+        '404': { description: Tenant not found }
+        '409': { description: Duplicate SKU }
         '422': { description: Validation error }
 
-  /tenants/{id}:
+  /menus/{id}:
     get:
-      tags: [Tenant]
-      summary: Get tenant
+      tags: [Menu]
+      summary: Get menu by id
       parameters:
         - $ref: '#/components/parameters/PathId'
       responses:
@@ -31,8 +43,8 @@ paths:
         '404': { description: Not found }
 
     put:
-      tags: [Tenant]
-      summary: Update tenant
+      tags: [Menu]
+      summary: Update menu
       parameters:
         - $ref: '#/components/parameters/PathId'
       requestBody:
@@ -40,16 +52,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TenantUpdate'
+              $ref: '#/components/schemas/MenuUpdate'
       responses:
         '200': { description: OK }
         '404': { description: Not found }
-        '409': { description: Duplicate code }
+        '409': { description: Duplicate SKU }
         '422': { description: Validation error }
 
     delete:
-      tags: [Tenant]
-      summary: Delete tenant
+      tags: [Menu]
+      summary: Delete menu
       parameters:
         - $ref: '#/components/parameters/PathId'
       responses:
