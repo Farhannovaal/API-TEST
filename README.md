@@ -1,2 +1,25 @@
 # API-TEST
 PPA TEST API FOR NEST JS AND EXPRESS JS
+
+Users: CRUD pengguna and Order Food
+
+
+Health: catatan kesehatan per user (bisa banyak), termasuk status is_fit (sudah sembuh/belum)
+
+Food Order: Order Food dengan ketentuan / persyaratan kesehatan tertentu.
+
+Swagger UI di /docs + skema request otomatis dari Joi via joi-to-swagger
+
+Node.js 20.x 
+
+Express v5
+
+MySQL 8 / MariaDB 
+
+Joi (validasi) + joi-to-swagger (generate schema)
+
+swagger-jsdoc + swagger-ui-express
+
+dotenv, morgan, cors
+
+nodemon (dev)
