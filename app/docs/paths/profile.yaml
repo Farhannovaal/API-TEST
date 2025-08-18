@@ -1,0 +1,26 @@
+paths:
+  /profile/{id}:
+    get:
+      tags: [Profile]
+      summary: Get profile by user id
+      parameters: [ { $ref: '#/components/parameters/PathId' } ]
+      responses:
+        200: { description: OK }
+        404: { description: User not found }
+    put:
+      tags: [Profile]
+      summary: Update profile by user id (partial)
+      parameters: [ { $ref: '#/components/parameters/PathId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProfileUpdate' }
+      responses:
+        200: { description: OK }
+        404: { description: User/Profile not found }
+        422:
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }

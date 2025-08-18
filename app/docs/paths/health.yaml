@@ -1,0 +1,44 @@
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: List health (joined with users)
+      responses:
+        200: { description: OK }
+    post:
+      tags: [Health]
+      summary: Create health record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/HealthCreate' }
+      responses:
+        201: { description: Created }
+        404: { description: User not found }
+        409: { description: Duplicate for same day }
+        422: { description: Validation error }
+
+  /health/{id}:
+    get:
+      tags: [Health]
+      summary: Get health by id
+      parameters: [ { $ref: '#/components/parameters/PathId' } ]
+      responses:
+        200: { description: OK }
+        404: { description: Not found }
+
+  /health/user/{id}:
+    get:
+      tags: [Health]
+      summary: List health by user id
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+        - in: query
+          name: date
+          required: false
+          schema: { type: string, pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' }
+          description: Filter by date (YYYY-MM-DD)
+      responses:
+        200: { description: OK }
+        404: { description: User not found }
