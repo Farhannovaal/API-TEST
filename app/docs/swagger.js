@@ -7,6 +7,9 @@ const { updateProfile } = require('../schemas/profile.schema');
 const { createTenantSchema, updateTenantSchema } = require('../schemas/tenant.schema');
 const { createMenuSchema, updateMenuSchema } = require('../schemas/menus.schema');
 const { createOrderSchema, updateOrderSchema } = require('../schemas/order.schema');
+const { createPaymentSchema, capturePaymentSchema, failPaymentSchema } = require('../schemas/payments.schema');
+
+
 
 const toSwagger = (schema) => {
     try {
@@ -85,13 +88,20 @@ const schemas = {
 
     OrderCreate: toSwagger(createOrderSchema),
     OrderUpdate: toSwagger(updateOrderSchema),
+
+
+    PaymentCreate: toSwagger(createPaymentSchema),
+    PaymentCapture: toSwagger(capturePaymentSchema),
+    PaymentFail: toSwagger(failPaymentSchema),
+
+
 };
 
 for (const k of Object.keys(schemas)) {
     if (schemas[k] === undefined) delete schemas[k];
 }
 
-const ORDERED_TAGS = ['User', 'Profile', 'Health', 'Tenant', 'Menus', 'Order'];
+const ORDERED_TAGS = ['User', 'Profile', 'Health', 'Tenant', 'Menus', 'Order', 'Payments'];
 const PATH_ORDER = [
     '/users', '/users/{id}',
     '/profile/{id}',
@@ -99,6 +109,7 @@ const PATH_ORDER = [
     '/tenants', '/tenants/{id}',
     '/tenants/{tenantId}/menus', '/menus/{id}',
     '/orders', '/orders/{id}', '/orders/{id}/cancel',
+    '/orders/{orderId}/payments', '/payments/{id}', '/payments/{id}/capture', '/payments/{id}/fail',
 ];
 
 const options = {

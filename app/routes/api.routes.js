@@ -5,6 +5,7 @@ const profileRoutes = require('./profile.routes')
 const tenantsRoutes = require('./tenants.route')
 const menusRoutes = require('./menus.routes')
 const orderRoutes = require('./orders.routes')
+const paymentsRoutes = require('./payments.routes')
 
 router.use('/health', healthRoutes);
 router.use('/users', usersRoutes);
@@ -12,4 +13,5 @@ router.use('/profile', profileRoutes);
 router.use('/tenants', tenantsRoutes);
 router.use('/menus', menusRoutes);
 router.use('/order', orderRoutes);
+router.use('/payments', paymentsRoutes);
 module.exports = router;
