@@ -31,5 +31,5 @@ nodemon (dev)
 
 1. Clone Project
 2. Setup Env
-3. Setup Database query migration di file C:\FOLDER-HARI\PPA\API\app\schemas\mysql\mysql.yaml
+3. Setup Database query migration di file app\schemas\mysql\mysql.yaml
 4. Doc Swagger
