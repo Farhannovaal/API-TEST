@@ -1,10 +1,10 @@
 const pool = require('../db/pool');
 
-async function createOrderTx(conn, { user_id, tenant_id, payment_method, total_amount, notes }) {
+async function createOrderTx(conn, { user_id, tenant_id, payment_method, total_amount, note }) {
   const [r] = await conn.execute(
-    `INSERT INTO orders (user_id,tenant_id,status,payment_method,total_amount,notes)
-     VALUES (:user_id,:tenant_id,'pending',:payment_method,:total_amount,:notes)`,
-    { user_id, tenant_id, payment_method, total_amount, notes: notes ?? null }
+    `INSERT INTO orders (user_id,tenant_id,status,payment_method,total_amount,note)
+     VALUES (:user_id,:tenant_id,'pending',:payment_method,:total_amount,:note)`,
+    { user_id, tenant_id, payment_method, total_amount, note: note ?? null }
   );
   return r.insertId;
 }
@@ -19,7 +19,7 @@ async function insertOrderItemTx(conn, { order_id, menu_id, qty, unit_price, sub
 
 async function getOrderWithItems(id) {
   const [orders] = await pool.query(
-    `SELECT o.id,o.user_id,o.tenant_id,o.status,o.payment_method,o.total_amount,o.notes,
+    `SELECT o.id,o.user_id,o.tenant_id,o.status,o.payment_method,o.total_amount,o.note,
             o.created_at,o.updated_at,
             t.name AS tenant_name
        FROM orders o
@@ -42,22 +42,29 @@ async function getOrderWithItems(id) {
 async function listOrders({ tenant_id, user_id, status, page, page_size }) {
   const where = [];
   const params = [];
-  if (tenant_id) { where.push('o.tenant_id=?'); params.push(tenant_id); }
-  if (user_id) { where.push('o.user_id=?'); params.push(user_id); }
+  if (tenant_id) { where.push('o.tenant_id=?'); params.push(Number(tenant_id)); }
+  if (user_id) { where.push('o.user_id=?'); params.push(Number(user_id)); }
   if (status) { where.push('o.status=?'); params.push(status); }
+
   const wsql = where.length ? ('WHERE ' + where.join(' AND ')) : '';
-  const limit = page_size;
-  const offset = (page - 1) * page_size;
+
+  const pSize = Number.isFinite(Number(page_size)) ? Number(page_size) : 20;
+  const p = Number.isFinite(Number(page)) ? Number(page) : 1;
+  const limit = Math.max(1, pSize);
+  const offset = Math.max(0, (p - 1) * limit);
+
+  const limitSql = ' LIMIT ? OFFSET ? ';
+  const args = [...params, limit, offset];
 
   const [rows] = await pool.query(
-    `SELECT o.id,o.user_id,o.tenant_id,o.status,o.payment_method,o.total_amount,o.notes,
+    `SELECT o.id,o.user_id,o.tenant_id,o.status,o.payment_method,o.total_amount,o.note,
             o.created_at,o.updated_at,
             t.name AS tenant_name
        FROM orders o
        JOIN tenants t ON t.id=o.tenant_id
        ${wsql}
       ORDER BY o.id DESC
-      LIMIT ? OFFSET ?`, [...params, limit, offset]
+      ${limitSql}`, args
   );
   return rows;
 }

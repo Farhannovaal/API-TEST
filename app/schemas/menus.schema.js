@@ -1,4 +1,3 @@
-// app/schemas/menus.schema.js
 const Joi = require('joi');
 
 const tenantIdParamSchema = Joi.object({

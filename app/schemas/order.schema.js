@@ -4,7 +4,7 @@ const createOrderSchema = Joi.object({
     user_id: Joi.number().integer().positive().required(),
     tenant_id: Joi.number().integer().positive().required(),
     payment_method: Joi.string().valid('cash', 'bank_transfer', 'ewallet', 'card').default('cash'),
-    notes: Joi.string().max(255).allow(null, ''),
+    note: Joi.string().max(255).allow(null, ''),
     items: Joi.array().items(
         Joi.object({
             menu_id: Joi.number().integer().positive().required(),

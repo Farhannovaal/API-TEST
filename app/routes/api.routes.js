@@ -12,6 +12,6 @@ router.use('/users', usersRoutes);
 router.use('/profile', profileRoutes);
 router.use('/tenants', tenantsRoutes);
 router.use('/menus', menusRoutes);
-router.use('/order', orderRoutes);
+router.use('/orders', orderRoutes);
 router.use('/payments', paymentsRoutes);
 module.exports = router;

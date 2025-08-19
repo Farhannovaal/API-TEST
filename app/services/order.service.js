@@ -4,7 +4,7 @@ const menuRepo = require('../repo/menus.repo');
 const orderRepo = require('../repo/order.repo');
 
 async function createOrder(payload) {
-    const { user_id, tenant_id, payment_method, notes, items } = payload;
+    const { user_id, tenant_id, payment_method, note, items } = payload;
 
     const tenant = await tenantRepo.findById(tenant_id);
     if (!tenant) return { error: 'Tenant not found' };
@@ -33,7 +33,7 @@ async function createOrder(payload) {
         await conn.beginTransaction();
 
         const orderId = await orderRepo.createOrderTx(conn, {
-            user_id, tenant_id, payment_method, total_amount: total, notes
+            user_id, tenant_id, payment_method, total_amount: total, note
         });
 
         for (const it of enriched) {
