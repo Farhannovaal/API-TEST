@@ -1,5 +1,4 @@
-// app/repo/menus.repo.prisma.js
-const prisma = require('../libs/prisma');
+const prisma = require('../../lib/prisma');
 
 async function listByTenant(tenantId) {
     return prisma.menu.findMany({

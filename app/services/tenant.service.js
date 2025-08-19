@@ -1,4 +1,4 @@
-const repo = require('../repo/tenant.repo');
+const repo = require('../repo/prisma/tenant.prisma')
 const { generateUniqueTenantCode } = require('../utils/tenantCode');
 
 const httpError = (status, message) => {
