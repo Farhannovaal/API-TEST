@@ -1,5 +1,3 @@
-
-
 const router = require('express').Router();
 
 const { listUsers, createUser, getUserById, updateUser, deleteUser } =

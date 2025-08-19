@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model health {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  user_id    Int       @db.UnsignedInt
+  penyakit   String    @db.VarChar(100)
+  is_fit     Boolean   @default(false)
+  waktu      DateTime  @default(now()) @db.DateTime(0)
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_health_user")
+
+  @@index([user_id, is_fit, waktu], map: "idx_health_user_fit_waktu")
+  @@index([user_id], map: "idx_health_user_id")
+}
+
+model menus {
+  id          Int           @id @default(autoincrement()) @db.UnsignedInt
+  tenant_id   Int           @db.UnsignedInt
+  name        String        @db.VarChar(120)
+  sku         String?       @db.VarChar(64)
+  category    String?       @db.VarChar(64)
+  price       Decimal       @default(0.00) @db.Decimal(12, 2)
+  image_url   String?       @db.VarChar(255)
+  stock_qty   Int           @default(0) @db.UnsignedInt
+  is_active   Boolean       @default(true)
+  created_at  DateTime      @default(now()) @db.DateTime(0)
+  updated_at  DateTime?     @db.DateTime(0)
+  tenants     tenants       @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_menus_tenant")
+  order_items order_items[]
+
+  @@unique([tenant_id, sku], map: "uq_menus_tenant_sku")
+  @@index([tenant_id], map: "idx_menus_tenant")
+  @@index([tenant_id, category], map: "idx_menus_tenant_category")
+}
+
+model order_items {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  order_id   Int       @db.UnsignedInt
+  menu_id    Int       @db.UnsignedInt
+  qty        Int       @db.UnsignedInt
+  unit_price Decimal   @default(0.00) @db.Decimal(12, 2)
+  subtotal   Decimal   @default(0.00) @db.Decimal(12, 2)
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  menus      menus     @relation(fields: [menu_id], references: [id], onUpdate: Restrict, map: "fk_items_menu")
+  orders     orders    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_items_order")
+
+  @@index([menu_id], map: "idx_items_menu")
+  @@index([order_id], map: "idx_items_order")
+}
+
+model orders {
+  id             Int                   @id @default(autoincrement()) @db.UnsignedInt
+  user_id        Int                   @db.UnsignedInt
+  tenant_id      Int                   @db.UnsignedInt
+  status         orders_status         @default(pending)
+  payment_method orders_payment_method @default(cash)
+  total_amount   Decimal               @default(0.00) @db.Decimal(12, 2)
+  note           String?               @db.VarChar(255)
+  created_at     DateTime              @default(now()) @db.DateTime(0)
+  updated_at     DateTime?             @db.DateTime(0)
+  order_items    order_items[]
+  tenants        tenants               @relation(fields: [tenant_id], references: [id], onUpdate: Restrict, map: "fk_orders_tenant")
+  users          users                 @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "fk_orders_user")
+  payments       payments[]
+
+  @@index([tenant_id], map: "idx_orders_tenant")
+  @@index([user_id], map: "idx_orders_user")
+}
+
+model payments {
+  id              Int             @id @default(autoincrement()) @db.UnsignedInt
+  order_id        Int             @db.UnsignedInt
+  method          payments_method
+  amount          Decimal         @default(0.00) @db.Decimal(12, 2)
+  status          payments_status @default(pending)
+  provider_txn_id String?         @unique(map: "provider_txn_id") @db.VarChar(100)
+  paid_at         DateTime?       @db.DateTime(0)
+  raw_response    String?         @db.LongText
+  created_at      DateTime        @default(now()) @db.DateTime(0)
+  updated_at      DateTime?       @db.DateTime(0)
+  orders          orders          @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_payments_order")
+
+  @@index([order_id], map: "idx_payments_order")
+  @@index([status], map: "idx_payments_status")
+}
+
+model profile {
+  id         Int                @id @default(autoincrement()) @db.UnsignedInt
+  user_id    Int                @db.UnsignedInt
+  birthday   DateTime           @db.Date
+  address    String             @db.VarChar(250)
+  gender     profile_gender
+  job_status profile_job_status @default(working)
+  created_at DateTime           @default(now()) @db.DateTime(0)
+  updated_at DateTime?          @db.DateTime(0)
+  users      users              @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_profile_user")
+
+  @@index([user_id], map: "idx_profile_user_id")
+}
+
+model tenants {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String    @unique(map: "uq_tenants_name") @db.VarChar(120)
+  code       String    @unique(map: "uq_tenants_code") @db.VarChar(50)
+  address    String?   @db.VarChar(255)
+  phone      String?   @db.VarChar(50)
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  menus      menus[]
+  orders     orders[]
+}
+
+model users {
+  id            Int        @id @default(autoincrement()) @db.UnsignedInt
+  name          String     @db.VarChar(100)
+  email         String     @unique(map: "email")
+  role          users_role @default(guest)
+  password_hash String     @db.VarChar(255)
+  created_at    DateTime   @default(now()) @db.DateTime(0)
+  updated_at    DateTime?  @db.DateTime(0)
+  health        health[]
+  orders        orders[]
+  profile       profile[]
+}
+
+enum payments_method {
+  cash
+  qris
+  transfer
+  card
+}
+
+enum orders_status {
+  pending
+  paid
+  cancelled
+  refunded
+}
+
+enum users_role {
+  admin
+  staff
+  guest
+}
+
+enum orders_payment_method {
+  cash
+  bank_transfer
+  ewallet
+  card
+}
+
+enum payments_status {
+  pending
+  success
+  failed
+}
+
+enum profile_gender {
+  Laki_laki @map("Laki-laki")
+  Perempuan
+}
+
+enum profile_job_status {
+  working
+  not_working @map("not working")
+}
