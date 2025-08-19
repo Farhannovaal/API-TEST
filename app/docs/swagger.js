@@ -13,12 +13,19 @@ const { createPaymentSchema, capturePaymentSchema, failPaymentSchema } = require
 
 const toSwagger = (schema) => {
     try {
-        if (!schema || !schema.isJoi) return undefined;
-        return j2s(schema).swagger;
-    } catch {
+        const resolved = typeof schema === 'function' ? schema() : schema;
+        if (!resolved || typeof resolved.describe !== 'function') {
+            console.warn('toSwagger: schema invalid/missing describe()');
+            return undefined;
+        }
+        const { swagger } = j2s(resolved);
+        return swagger;
+    } catch (e) {
+        console.error('toSwagger error:', e);
         return undefined;
     }
 };
+
 
 const ValidationError = {
     type: 'object',
@@ -77,7 +84,9 @@ const schemas = {
 
     UserCreate: toSwagger(createUserSchema),
     UserUpdate: toSwagger(updateUserSchema),
+
     HealthCreate: toSwagger(createHealthSchema),
+
     ProfileUpdate: toSwagger(updateProfile),
 
     TenantCreate: toSwagger(createTenantSchema),
@@ -89,13 +98,11 @@ const schemas = {
     OrderCreate: toSwagger(createOrderSchema),
     OrderUpdate: toSwagger(updateOrderSchema),
 
-
     PaymentCreate: toSwagger(createPaymentSchema),
     PaymentCapture: toSwagger(capturePaymentSchema),
     PaymentFail: toSwagger(failPaymentSchema),
-
-
 };
+
 
 for (const k of Object.keys(schemas)) {
     if (schemas[k] === undefined) delete schemas[k];
